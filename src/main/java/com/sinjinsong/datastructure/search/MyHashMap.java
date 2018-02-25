@@ -1,4 +1,4 @@
-package com.sinjinsong.datastructure.searchTable;
+package com.sinjinsong.datastructure.search;
 
 import java.util.Objects;
 

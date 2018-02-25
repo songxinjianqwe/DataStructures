@@ -156,11 +156,11 @@ public class Sort {
         }
         data[root] = e;
     }
-
+    
     // 实现从low至high的排序
     public static <T extends Comparable<T>> void mergeSort(T[] arr, int low, int high) {
-        int mid = (low + high) / 2;
         if (low < high) {
+            int mid = (low + high) / 2;
             mergeSort(arr, low, mid);
             mergeSort(arr, mid + 1, high);
             merge(arr, low, mid, high);

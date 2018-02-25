@@ -21,17 +21,16 @@ public class TrieTree {
         }
     }
 
-    public void add(String argWord) {
-        char argChars[] = argWord.toCharArray();
-        TrieNode currentTrieNode = root;
-
-        for (int i = 0; i < argChars.length; i++) {
-            if (!currentTrieNode.containsChildValue(argChars[i])) {
-                currentTrieNode.addChild(argChars[i], new TrieNode(currentTrieNode.getValue() + argChars[i]));
+    public void add(String word) {
+        char [] chars = word.toCharArray();
+        TrieNode current = root;
+        for(char c : chars) {
+             if (!current.containsChildValue(c)) {
+                current.addChild(c, new TrieNode(current.getValue() + c));
             }
-            currentTrieNode = currentTrieNode.getChild(argChars[i]);
+            current = current.getChild(c);
         }
-        currentTrieNode.setIsValidWord(true);
+        current.setIsValidWord(true);
     }
 
     public boolean containsPrefix(String argPrefix) {
@@ -51,24 +50,20 @@ public class TrieTree {
         return getNode(argString);
     }
 
-    private boolean contains(String argString, boolean argIsWord) {
-        TrieNode trieNode = getNode(argString);
-        return (trieNode != null && trieNode.isValidWord() && argIsWord) ||
-                (!argIsWord && trieNode != null);
+    private boolean contains(String str, boolean isWord) {
+        TrieNode trieNode = getNode(str);
+        return (trieNode != null && trieNode.isValidWord() && isWord) ||
+                (!isWord && trieNode != null);
     }
 
-    private TrieNode getNode(String argString) {
-        TrieNode currentTrieNode = root;
-        char argChars[] = argString.toCharArray();
-        for (int i = 0; i < argChars.length && currentTrieNode != null; i++) {
-            currentTrieNode = currentTrieNode.getChild(argChars[i]);
-
-            if (currentTrieNode == null) {
-                return null;
-            }
+    private TrieNode getNode(String str) {
+        TrieNode current = root;
+        char [] chars = str.toCharArray();
+        for (int i = 0; i < chars.length && current != null; i++) {
+            current = current.getChild(chars[i]);
         }
-
-        return currentTrieNode;
+        
+        return current;
     }
 
     public static void main(String[] args) {
@@ -122,8 +117,8 @@ class TrieNode {
         value = argValue;
     }
 
-    public boolean addChild(char c, TrieNode argChild) {
-        children.put(c, argChild);
+    public boolean addChild(char c, TrieNode child) {
+        children.put(c, child);
         return true;
     }
 
@@ -132,7 +127,7 @@ class TrieNode {
     }
 
     public String getValue() {
-        return value.toString();
+        return value;
     }
 
     public TrieNode getChild(char c) {

@@ -82,8 +82,8 @@ public class ExpressionTree {
 		String exp = "(a+b)*c-d/e#";
 		//所有的表达式要求以#结束
 		BinarySearchTree<Character> tree = ExpressionTree.createExpressionTree(exp);
-		tree.preOrder(tree.root());
+		tree.preOrder();
 		System.out.println();
-		tree.inOrder(tree.root());
+		tree.inOrder();
 	}
 }

@@ -57,7 +57,7 @@ class ChildSiblingTree<E extends Comparable<E>>{
 	private ChildSiblingNode<E> root;
 }
 class ChildSiblingNode<E extends Comparable<E>>{
-	E data;
+	E val;
 	ChildSiblingNode<E> firstChild;//第一个孩子
 	ChildSiblingNode<E> nextSibling;//右侧的兄弟
 }

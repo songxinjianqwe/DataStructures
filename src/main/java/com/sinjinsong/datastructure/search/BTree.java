@@ -1,4 +1,4 @@
-package com.sinjinsong.datastructure.searchTable;
+package com.sinjinsong.datastructure.search;
 /**
  * B-树
  * @author New Song

@@ -1,4 +1,4 @@
-package com.sinjinsong.datastructure.searchTable;
+package com.sinjinsong.datastructure.search;
 
 public class AVLTree<E extends Comparable<E>> {
     private AVLTreeNode<E> root;

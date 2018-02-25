@@ -39,7 +39,7 @@ public class Test {
 		elements++;
 		return true;
 	}
-	public int indexOf(E e) {
+	public int simpleMatch(E e) {
 		int start = 0;
 		int end = elements - 1;
 		int mid = 0;

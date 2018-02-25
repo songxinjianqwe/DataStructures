@@ -82,6 +82,6 @@ class HuffmanNode<E> implements Comparable<HuffmanNode<E>> {
 	// 正序，由小到大
 	@Override
 	public String toString() {
-		return "data:" + data + ",weight:" + weight;
+		return "val:" + data + ",weight:" + weight;
 	}
 }

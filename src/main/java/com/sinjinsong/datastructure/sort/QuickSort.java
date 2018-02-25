@@ -12,7 +12,7 @@ public class QuickSort {
             int high = right;
             T pivotKey = arr[low];
             while(low < high) {
-                while(low <= high && pivotKey.compareTo(arr[high]) < 0) {
+                while(low <= high && pivotKey.compareTo(arr[high]) <= 0) {
                     high--;
                 }
                 arr[low] = arr[high];

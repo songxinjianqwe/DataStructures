@@ -341,7 +341,7 @@ public class MyLinkedList<E> implements MyList<E> {
         
         list.remove(Integer.valueOf(9));
         list.traverse();
-//        list.reverse();
+//        list.inverse();
 //        list.traverse();
 //        list.add(3, 100);
 //        list.traverse();
@@ -360,8 +360,8 @@ public class MyLinkedList<E> implements MyList<E> {
 //        System.out.println(list.getFirst());
 //        System.out.println(list.getLast());
 //
-//        System.out.println(list.indexOf(23));
-//        System.out.println(list.indexOf(12));
+//        System.out.println(list.simpleMatch(23));
+//        System.out.println(list.simpleMatch(12));
 //        System.out.println(list.remove(19));
 //        list.traverse();
 //        System.out.println(list.removeFirst());
