@@ -94,10 +94,28 @@ public class Test {
 //        a.preOrder();
 //        a.noRecPostOrder();
 
-        BinarySearchTree<Integer> a = BinarySearchTree.createIntBiTree("421##3##5##");
+//        BinarySearchTree<String> a = BinarySearchTree.createStringBiTree("1!2!4!8!#!#!9!#!#!5!10!#!#!11!#!#!3!6!12!#!#!13!#!#!7!14!#!#!15!#!#!");
+        BinarySearchTree<Character> a = BinarySearchTree.createCharBiTree("421##3##5##");
+        System.out.println(a.sizeOfLevel(1));
+        System.out.println(a.sizeOfLevel(0));
+        System.out.println(a.sizeOfLevel(2));
+        System.out.println(a.sizeOfLevel(3));
+        
+//        TreeNode<Character> head = a.BST2DoubleLinkedList(a.root());
+//        while(head != null) {
+//            System.out.println(head.val);
+//            head = head.right;
+//        }
+        
+//        a.levelOrder();
 //        a.inOrder();
 //        System.out.println(a.isBST());
 //        System.out.println(a.isBSTByPassingMaxMin(a.root(), Integer.MIN_VALUE,Integer.MAX_VALUE));
-        System.out.println(a.getMaxSubBSTInfo(a.root()));
+//        System.out.println(a.getMaxSubBSTInfo(a.root()));
+//        List<List<String>> lists = a.printZ();
+//        a.printAllBiTreePaths();
+        
+        
+        
     }
 }

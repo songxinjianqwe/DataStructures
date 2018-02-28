@@ -13,29 +13,42 @@ public class FastPower {
      * curr乘其自身（指数翻倍），N右移。
      * 直至N为0。
      * 时间复杂度为O(log n)
-     * @param k
-     * @param n
-     * @param mod
+     *
+     * @param base
+     * @param exp
      * @return
      */
-    public static int power(int k, int n, long mod) {
-        if (n == 0) {
+    public static double power(double base, int exp) {
+        if (Double.compare(base, 0) == 0 && exp < 0) {
+            throw new IllegalArgumentException("0的负数次方不存在");
+        }
+        if (exp == 0) {
+            // 这里假定0的0次方为1
             return 1;
         }
-        long result = 1;
-        long curr = k;
-        while (n != 0) {
-            // 如果n的最低位为1
-            if ((n & 1) == 1) {
-                result = (result * curr) % mod;
-            }
-            n >>= 1;
-            curr = (curr * curr) % mod;
+        if (exp == 1) {
+            return base;
         }
-        return (int) result;
+        double result = 1;
+        double curr = 0;
+        if (exp > 0) {
+            curr = base;
+        } else {
+            curr = 1 / base;
+        }
+        exp = exp > 0 ? exp : -exp;
+        while (exp != 0) {
+            // 如果n的最低位为1
+            if ((exp & 1) == 1) {
+                result *= curr;
+            }
+            exp >>= 1;
+            curr *= curr;
+        }
+        return result;
     }
 
     public static void main(String[] args) {
-        System.out.println(power(10, 75, 1000000007));
+        System.out.println(power(10, -3));
     }
 }

@@ -83,25 +83,31 @@ public class Sort {
         // 只有有多于一个的元素才进行排序
         if (left < right) {
             int low = left, high = right;
-            T pivotKey = arr[low];// 枢轴
-            while (low < high) {
-                while (low < high && arr[high].compareTo(pivotKey) >= 0) {
-                    high--;
-                }
-                // high向左移动，直至遇到小于枢轴的元素，然后将high所指向元素赋给low指向元素（也就是已经保存下来的元素，不会丢失）
-                arr[low] = arr[high];
-                while (low < high && arr[low].compareTo(pivotKey) <= 0) {
-                    low++;
-                }
-                // low向右移动，直至遇到大于枢轴的元素，然后将low所指向元素赋给high所指向元素
-                arr[high] = arr[low];
-            }
-            // 退出时low和high都指向同一元素（中间的一个位置），将枢轴赋给这个元素
-            // 并且在枢轴的左面的元素都比枢轴小，在枢轴右面的元素都比枢轴大
-            arr[low] = pivotKey;
+            // 此时low==high等于枢轴index,此时小于等于枢轴的都放到了low的左侧，大于枢轴的都放到了low的右侧
+            low = partition(arr, low, high);
             quickSort(arr, left, low - 1);// 分而治之
             quickSort(arr, low + 1, right);
         }
+    }
+
+    private static <T extends Comparable<T>> int partition(T[] arr, int low, int high) {
+        T pivotKey = arr[low];// 枢轴
+        while (low < high) {
+            while (low < high && arr[high].compareTo(pivotKey) >= 0) {
+                high--;
+            }
+            // high向左移动，直至遇到小于枢轴的元素，然后将high所指向元素赋给low指向元素（也就是已经保存下来的元素，不会丢失）
+            arr[low] = arr[high];
+            while (low < high && arr[low].compareTo(pivotKey) <= 0) {
+                low++;
+            }
+            // low向右移动，直至遇到大于枢轴的元素，然后将low所指向元素赋给high所指向元素
+            arr[high] = arr[low];
+        }
+        // 退出时low和high都指向同一元素（中间的一个位置），将枢轴赋给这个元素
+        // 并且在枢轴的左面的元素都比枢轴小，在枢轴右面的元素都比枢轴大
+        arr[low] = pivotKey;
+        return low;
     }
 
     public static <T extends Comparable<T>> void selectSort(T[] arr) {
@@ -156,7 +162,7 @@ public class Sort {
         }
         data[root] = e;
     }
-    
+
     // 实现从low至high的排序
     public static <T extends Comparable<T>> void mergeSort(T[] arr, int low, int high) {
         if (low < high) {
@@ -239,9 +245,10 @@ public class Sort {
 
     public static void main(String[] args) {
         Integer[] arr = {50, 123, 543, 187, 49, 30, 0, 2, 11, 100};
-//		Sort.radixSort(arr,10,3);
-//		Sort.heapSort(arr);
-        shellSort(arr);
+//		QuickSort.radixSort(arr,10,3);
+//		QuickSort.heapSort(arr);
+//        shellSort(arr);
+        quickSort(arr,0,arr.length-1);
         System.out.println(Arrays.toString(arr));
     }
 }

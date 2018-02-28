@@ -10,7 +10,6 @@ import java.util.*;
 public class BinarySearchTree<E extends Comparable<E>> implements Cloneable {
     private TreeNode<E> root;
     // 用于使用先序遍历字符串建树
-    private LinkedList<TreeNode<E>> pathList;
     // 用于输出从根节点到各个叶子结点的所有路径
     private static int index = -1;
 
@@ -178,30 +177,61 @@ public class BinarySearchTree<E extends Comparable<E>> implements Cloneable {
         }
     }
 
-    public TreeNode<E> parent(TreeNode<E> element) {
-        if (element == null) {
-            return null;
-        }
-        return parent(root, element);
+    public int sizeOfLevel(int k) {
+        return sizeOfLevel(root, k);
     }
 
-    // 第一个参数subTree是指该结点之下进行搜索，第二个参数element是要找父节点的子节点
-    private TreeNode<E> parent(TreeNode<E> subTree, TreeNode<E> element) {
+    /**
+     * 第k层节点个数就是第k-1层的孩子数
+     * k==0时，返回1或0
+     *
+     * @param curr
+     * @param k
+     * @return
+     */
+    private int sizeOfLevel(TreeNode<E> curr, int k) {
+        if (curr == null) {
+            return 0;
+        }
+        if (k == 0) {
+            return 1;
+        } else {
+            return sizeOfLevel(curr.left, k - 1) + sizeOfLevel(curr.right, k - 1);
+        }
+    }
+
+
+    public TreeNode<E> parent(TreeNode<E> curr) {
+        if (curr == null) {
+            return null;
+        }
+        return parent(root, curr);
+    }
+
+    /**
+     * 先序遍历
+     *
+     * @param root
+     * @param curr
+     * @return
+     */
+    private TreeNode<E> parent(TreeNode<E> root, TreeNode<E> curr) {
         TreeNode<E> parent;
-        if (subTree == null) {
+        if (root == null) {
             return null;
         } else {
-            if (subTree.left == element || subTree.right == element) {
-                return subTree;
+            if (root.left == curr || root.right == curr) {
+                return root;
             } else {
-                parent = parent(subTree.left, element);
+                parent = parent(root.left, curr);
                 // 在左子树中递归搜索element的父节点
-                return parent != null ? parent : parent(subTree.right, element);
+                return parent != null ? parent : parent(root.right, curr);
                 // 如果在左子树中找到了，就返回；没有找到，就在右子树中搜索
                 // 如果都没有找到，就返回null
             }
         }
     }
+
 
     private TreeNode<E> leftChild(TreeNode<E> node) {
         if (node == null) {
@@ -485,7 +515,6 @@ public class BinarySearchTree<E extends Comparable<E>> implements Cloneable {
      */
     public static BinarySearchTree<String> createStringBiTree(String preStr) {
         String[] pre = preStr.split("!");
-        System.out.println(Arrays.toString(pre));
         BinarySearchTree<String> tree = new BinarySearchTree<>(createStringSubTree(pre));
         index = -1;
         return tree;
@@ -534,14 +563,15 @@ public class BinarySearchTree<E extends Comparable<E>> implements Cloneable {
 
     // 输出二叉树从根节点到每个叶子结点的路径
     public void printAllBiTreePaths() {
-        if (pathList == null) {
-            pathList = new LinkedList<>();
-        }
-        printBiTreePath(root);
-        pathList.clear();
+        printBiTreePath(root, new LinkedList<>());
     }
 
-    private void printBiTreePath(TreeNode<E> node) {
+    /**
+     * 类似于先序遍历
+     *
+     * @param node
+     */
+    private void printBiTreePath(TreeNode<E> node, LinkedList<TreeNode<E>> pathList) {
         if (node != null) {
             pathList.addLast(node);
             if (node.left == null && node.right == null) {
@@ -551,8 +581,38 @@ public class BinarySearchTree<E extends Comparable<E>> implements Cloneable {
                 System.out.println();
                 // 输出链表从根节点到叶子的数据域
             } else {
-                printBiTreePath(node.left);
-                printBiTreePath(node.right);
+                printBiTreePath(node.left, pathList);
+                printBiTreePath(node.right, pathList);
+            }
+            pathList.removeLast();
+            // 处理完当前结点，退出链表
+        }
+    }
+
+    // 输出二叉树从根节点到每个叶子结点的路径
+    public List<List<Integer>> findPathSumEquaiTo(TreeNode<Integer> root, int expectedSum) {
+        List<List<Integer>> result = new ArrayList<>();
+        findPathSumEqualTo(root, new LinkedList<Integer>(), result, 0, expectedSum);
+        return result;
+    }
+
+
+    /**
+     * 类似于先序遍历
+     *
+     * @param node
+     */
+    private void findPathSumEqualTo(TreeNode<Integer> node, LinkedList<Integer> pathList, List<List<Integer>> result, int currentSum, int expectedSum) {
+        if (node != null) {
+            pathList.addLast(node.val);
+            currentSum += node.val;
+            if (node.left == null && node.right == null && currentSum == expectedSum) {
+                result.add(new ArrayList<>(pathList));
+                System.out.println();
+                // 输出链表从根节点到叶子的数据域
+            } else {
+                findPathSumEqualTo(node.left, pathList, result, currentSum, expectedSum);
+                findPathSumEqualTo(node.right, pathList, result, currentSum, expectedSum);
             }
             pathList.removeLast();
             // 处理完当前结点，退出链表
@@ -632,19 +692,16 @@ public class BinarySearchTree<E extends Comparable<E>> implements Cloneable {
     // 层序遍历，使用queue
     public void levelOrder() {
         Queue<TreeNode<E>> queue = new ArrayDeque<>();
-        TreeNode<E> node = root;
-        while (node != null) {
+        queue.add(root);
+        TreeNode<E> node;
+        while (!queue.isEmpty()) {
+            node = queue.poll();
             System.out.print(node.val + " ");
             if (node.left != null) {
                 queue.add(node.left);
             }
             if (node.right != null) {
                 queue.add(node.right);
-            }
-            if (!queue.isEmpty()) {
-                node = queue.poll();
-            } else {
-                return;
             }
         }
         System.out.println();
@@ -1156,6 +1213,141 @@ public class BinarySearchTree<E extends Comparable<E>> implements Cloneable {
             }
         }
     }
+
+    /**
+     * 是否是对称的二叉树
+     * 先序遍历
+     * 注意对称不指的是左右孩子值相同，而是左孩子的左孩子值等于右孩子的右孩子值。左孩子的右孩子值等于右孩子的左孩子值
+     *
+     * @return
+     */
+    public boolean isSymmetrical() {
+        return isSymmetrical(root, root);
+    }
+
+    private boolean isSymmetrical(TreeNode<E> currA, TreeNode<E> currB) {
+
+        if (currA == null && currB == null) {
+            return true;
+        }
+        if (currA == null || currB == null) {
+            return false;
+        }
+        if (currA.val != currB.val) {
+            return false;
+        }
+        return isSymmetrical(currA.left, currB.right) && isSymmetrical(currA.right, currB.left);
+    }
+
+    /**
+     * 类似于层序遍历，但是队列的入队、出队规则不同
+     *
+     * @return
+     */
+    public List<List<E>> printZ() {
+        TreeNode<E> curr;
+        Deque<TreeNode<E>> queue = new ArrayDeque<>();
+        List<List<E>> result = new ArrayList<>();
+        queue.add(root);
+        int depth = 0;
+        while (!queue.isEmpty()) {
+            int levelSize = queue.size();
+            List<E> levelResult = new ArrayList<>();
+            // 一层进行遍历,queue的长度即为该层节点个数
+            for (int i = 0; i < levelSize; i++) {
+                if (depth % 2 == 0) {
+                    // 如果是偶数层，那么从队尾取出节点，先左后右，加入到队头
+                    curr = queue.pollLast();
+                    if (curr.left != null) {
+                        queue.offerFirst(curr.left);
+                    }
+                    if (curr.right != null) {
+                        queue.offerFirst(curr.right);
+                    }
+                } else {
+                    // 如果是奇数层，那么从队头取出节点，先右后左，加入到队尾
+                    curr = queue.pollFirst();
+                    if (curr.right != null) {
+                        queue.offerLast(curr.right);
+                    }
+                    if (curr.left != null) {
+                        queue.offerLast(curr.left);
+                    }
+                }
+                levelResult.add(curr.val);
+            }
+            result.add(levelResult);
+            depth++;
+        }
+        return result;
+    }
+
+    /**
+     * 二叉搜索树转为有序双向链表
+     * 非递归中序遍历
+     *
+     * @param curr
+     * @return
+     */
+    public TreeNode<E> BST2DoubleLinkedList(TreeNode<E> curr) {
+        Stack<TreeNode<E>> stack = new Stack<>();
+        TreeNode<E> pre = null;
+        TreeNode<E> head = null;
+        while (curr != null || !stack.isEmpty()) {
+            while (curr != null) {
+                stack.push(curr);
+                curr = curr.left;
+            }
+            if (!stack.isEmpty()) {
+                curr = stack.pop();
+                // 新增部分代码
+                if (head == null) {
+                    head = curr;
+                }
+                // 重建指针
+                curr.left = pre;
+                if (pre != null) {
+                    // 重建指针
+                    pre.right = curr;
+                }
+                pre = curr;
+                // 结束
+                curr = curr.right;
+                ;// 访问右子树
+            }
+        }
+        return head;
+    }
+
+    /**
+     * 中序遍历 求从小到大的第k个node
+     *
+     * @param k
+     * @return
+     */
+    public E kthNodeInBST(int k) {
+        TreeNode<E> curr = root;
+        Stack<TreeNode<E>> stack = new Stack<>();
+        while (curr != null || !stack.isEmpty()) {
+            while (curr != null) {
+                // while表示不断地访问其左子树，直至达到左子树的最底端
+                stack.push(curr);
+                curr = curr.left;// 访问左子树
+            }
+            if (!stack.isEmpty()) {
+                curr = stack.pop();
+                k--;
+                if (k == 0) {
+                    return curr.val;
+                }
+                curr = curr.right;// 访问右子树
+            }
+        }
+        return null;
+    }
+
+   
+
 }
 
 

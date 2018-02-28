@@ -20,7 +20,7 @@ public class Fibonacci {
         int first = 1;
         int second = 1;
         int result = 0;
-        for (int i = 1; i < n; i++) {
+        for (int i = 2; i <= n; i++) {
             result = first + second;
             first = second;
             second = result;
