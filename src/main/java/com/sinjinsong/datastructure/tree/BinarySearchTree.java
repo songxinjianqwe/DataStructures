@@ -162,6 +162,32 @@ public class BinarySearchTree<E extends Comparable<E>> implements Cloneable {
         }
     }
 
+    /**
+     * 非递归求深度，采用层序遍历的方式
+     * @return
+     */
+    public int depthNoRec() {
+        TreeNode<E> curr;
+        Deque<TreeNode<E>> queue = new ArrayDeque<>();
+        queue.add(root);
+        int depth = 0;
+        while (!queue.isEmpty()) {
+            int levelSize = queue.size();
+            // 一层进行遍历,queue的长度即为该层节点个数
+            for (int i = 0; i < levelSize; i++) {
+                curr = queue.poll();
+                if (curr.left != null) {
+                    queue.add(curr.left);
+                }
+                if (curr.right != null) {
+                    queue.add(curr.right);
+                }
+            }
+            depth++;
+        }
+        return depth;
+    }
+
     // 二叉树的结点个数
     public int size() {
         return size(root);
@@ -592,7 +618,7 @@ public class BinarySearchTree<E extends Comparable<E>> implements Cloneable {
     // 输出二叉树从根节点到每个叶子结点的路径
     public List<List<Integer>> findPathSumEquaiTo(TreeNode<Integer> root, int expectedSum) {
         List<List<Integer>> result = new ArrayList<>();
-        findPathSumEqualTo(root, new LinkedList<Integer>(), result, 0, expectedSum);
+        findPathSumEqualTo(root, new LinkedList<>(), result, 0, expectedSum);
         return result;
     }
 
@@ -1345,9 +1371,6 @@ public class BinarySearchTree<E extends Comparable<E>> implements Cloneable {
         }
         return null;
     }
-
-   
-
 }
 
 

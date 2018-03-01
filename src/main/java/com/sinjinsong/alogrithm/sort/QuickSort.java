@@ -41,7 +41,7 @@ public class QuickSort {
      * @param left
      * @param right
      */
-    public static void quickSortNonRec(int[] arr, int left, int right) {
+    public static void quickSortNoRec(int[] arr, int left, int right) {
         Stack<Integer> stack = new Stack<>();
         if (left < right) {
             stack.push(left);
@@ -67,7 +67,7 @@ public class QuickSort {
     public static void main(String[] args) {
         int[] arr = {65, 2, 3, 1, 5, 7, 23};
 //        quickSort(arr, 0, arr.length - 1);
-        quickSortNonRec(arr,0,arr.length-1);
+        quickSortNoRec(arr,0,arr.length-1);
         System.out.println(Arrays.toString(arr));
     }
 }

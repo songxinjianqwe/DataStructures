@@ -5,9 +5,9 @@ package com.sinjinsong.alogrithm.tree;
  * @date 2018/2/28
  */
 public class TreeNode {
-    int val;
-    TreeNode left;
-    TreeNode right;
+    public int val;
+    public TreeNode left;
+    public TreeNode right;
 
     public TreeNode(int val) {
         this.val = val;
@@ -17,5 +17,15 @@ public class TreeNode {
         this.val = val;
         this.left = left;
         this.right = right;
+    }
+
+    public static void preOrder(TreeNode curr) {
+        if (curr != null) {
+            System.out.print(curr.val + "  ");
+            preOrder(curr.left);
+            preOrder(curr.right);
+        }else{
+            System.out.print("#  ");
+        }
     }
 }   

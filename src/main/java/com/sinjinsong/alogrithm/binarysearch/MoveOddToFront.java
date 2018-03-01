@@ -29,10 +29,10 @@ public class MoveOddToFront {
         int low = 0;
         int high = arr.length - 1;
         while (low < high) {
-            while (low <= high && (arr[low] & 1) == 1) {
+            while (low < high && (arr[low] & 1) == 1) {
                 low++;
             }
-            while (low <= high && (arr[high] & 1) == 0) {
+            while (low < high && (arr[high] & 1) == 0) {
                 high--;
             }
             if (low < high) {
@@ -86,10 +86,10 @@ public class MoveOddToFront {
     public static void main(String[] args) {
         int[] arr = {0, 2, 4, 6, 1, 3, 5};
         // 5, 3, 1, 6, 4, 2, 0
-//        moveOddToFront(arr);
+        moveOddToFront(arr);
 //        moveOddToFrontFaster(arr);
         //5, 3, 1, 6, 4, 2, 0
-        moveOddToFrontWithFixedRelativePosition(arr);
+//        moveOddToFrontWithFixedRelativePosition(arr);
         System.out.println(Arrays.toString(arr));
     }
 }
