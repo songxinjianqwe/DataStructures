@@ -45,7 +45,7 @@ public class MaxPriorityQueue<E extends Comparable<E>> {
     // 将数据重新建堆
     public void buildHeap() {
         for (int i = (currentSize - 1) / 2; i >= 0; i--) {
-            filterDown(currentSize - 1, i);// 建立大顶堆，每次调用都排序一棵二叉树，如果还有子树那么继续调整
+            filterDown(currentSize , i);// 建立大顶堆，每次调用都排序一棵二叉树，如果还有子树那么继续调整
         }
     }
 
@@ -57,7 +57,7 @@ public class MaxPriorityQueue<E extends Comparable<E>> {
             temp = elements[0];
             elements[0] = elements[i];
             elements[i] = temp;
-            filterDown(i - 1, 0);// 先将堆顶元素与堆的无序区的最后一个元素交换，然后重新调整为堆(每次循环后都实现了一个元素的有序，因此调整的范围减一)
+            filterDown(i , 0);// 先将堆顶元素与堆的无序区的最后一个元素交换，然后重新调整为堆(每次循环后都实现了一个元素的有序，因此调整的范围减一)
         }
     }
 
@@ -117,15 +117,15 @@ public class MaxPriorityQueue<E extends Comparable<E>> {
         }
         elements[child] = element;// 放入到合适位置
     }
-
+    
     // 将以传入的root为根节点的所在树（根+左孩子+右孩子）调整为大顶堆，并递归向下调整
-    private void filterDown(int maxIndex, int root) {
+    private void filterDown(int size, int root) {
         E e = (E) elements[root];
         int upperChild;
         // 当root仍有孩子，则继续循环
-        while ((root * 2 + 1) <= maxIndex) {
+        while ((root * 2 + 1) < size) {
             upperChild = root * 2 + 1;
-            if (upperChild < maxIndex && ((Comparable<E>) elements[upperChild]).compareTo((E) elements[upperChild + 1]) < 0) {
+            if (upperChild + 1 < size && ((Comparable<E>) elements[upperChild]).compareTo((E) elements[upperChild + 1]) < 0) {
                 upperChild++; 
             }
             // 此时upperChild指向左右孩子较大的

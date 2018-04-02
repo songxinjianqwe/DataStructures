@@ -164,6 +164,7 @@ public class BinarySearchTree<E extends Comparable<E>> implements Cloneable {
 
     /**
      * 非递归求深度，采用层序遍历的方式
+     *
      * @return
      */
     public int depthNoRec() {
@@ -920,11 +921,12 @@ public class BinarySearchTree<E extends Comparable<E>> implements Cloneable {
      */
     public boolean isCompleteBinaryTree() {
         Queue<TreeNode<E>> queue = new ArrayDeque<>();
-        TreeNode<E> curr = root;
+        queue.add(root);
+        TreeNode<E> curr;
         boolean nextLeaf = false;
-        while (curr != null) {
+        while (!queue.isEmpty()) {
             // 访问节点，检查一些要求
-
+            curr = queue.poll();
             // 不符合完全二叉树的定义
             if (curr.left == null && curr.right != null) {
                 return false;
@@ -943,11 +945,6 @@ public class BinarySearchTree<E extends Comparable<E>> implements Cloneable {
             }
             if (curr.right != null) {
                 queue.add(curr.right);
-            }
-            if (!queue.isEmpty()) {
-                curr = queue.poll();
-            } else {
-                break;
             }
         }
         return true;
@@ -1370,6 +1367,30 @@ public class BinarySearchTree<E extends Comparable<E>> implements Cloneable {
             }
         }
         return null;
+    }
+
+    public List<E> leftSideView() {
+        List<E> result = new ArrayList<>();
+        TreeNode<E> curr;
+        Deque<TreeNode<E>> queue = new ArrayDeque<>();
+        queue.add(root);
+        while (!queue.isEmpty()) {
+            int levelSize = queue.size();
+            // 一层进行遍历,queue的长度即为该层节点个数
+            for (int i = 0; i < levelSize; i++) {
+                curr = queue.poll();
+                if (curr.left != null) {
+                    queue.add(curr.left);
+                }
+                if (curr.right != null) {
+                    queue.add(curr.right);
+                }
+                if (i == 0) {
+                    result.add(curr.val);
+                }
+            }
+        }
+        return result;
     }
 }
 

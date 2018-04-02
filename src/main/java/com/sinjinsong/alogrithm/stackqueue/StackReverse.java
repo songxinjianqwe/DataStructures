@@ -28,9 +28,9 @@ public class StackReverse {
         int data = stack.pop();
         // 不是栈底，则重新压回，并将栈底的结果返回
         if (!stack.isEmpty()) {
-            int last = popBottom(stack);
+            int bottom = popBottom(stack);
             stack.push(data);
-            return last;
+            return bottom;
         } else {
             // pop完为空，说明是栈底了
             // 栈底不重新压回栈中

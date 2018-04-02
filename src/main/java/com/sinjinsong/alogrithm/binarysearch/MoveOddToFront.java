@@ -71,7 +71,7 @@ public class MoveOddToFront {
                 evenCount++;
             }
         }
-        // 将奇数顺序放到数组后面
+        // 将偶数顺序放到数组后面
         for (int i = arr.length - evenCount; i < arr.length; i++) {
             arr[i] = queue.remove();
         }

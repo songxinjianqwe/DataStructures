@@ -132,35 +132,35 @@ public class Sort {
 
     public static <T extends Comparable<T>> void heapSort(T[] arr) {
         T t = null;
-        for (int i = arr.length / 2; i >= 0; i--) {
+        for (int i = (arr.length - 1) / 2; i >= 0; i--) {
             filterDown(arr, arr.length, i);// 建立大顶堆，每次调用都排序一棵二叉树，如果还有子树那么继续调整
         }
-        for (int i = arr.length - 1; i >= 1; i--) {
+        for (int i = arr.length - 1; i > 0; i--) {
             t = arr[0];
             arr[0] = arr[i];
             arr[i] = t;
             filterDown(arr, i, 0);// 先将堆顶元素与堆的无序区的最后一个元素交换，然后重新调整为堆(每次循环后都实现了一个元素的有序，因此调整的范围减一)
         }
     }
-
+    
     private static <T extends Comparable<T>> void filterDown(T[] data, int size, int root) {
-        T e = data[root];
-        int child = 0;
+        T rootData = data[root];
+        int upperChild = 0;
         while ((root * 2 + 1) < size) {//当存在左孩子时
-            child = root * 2 + 1;
+            upperChild = root * 2 + 1;
             //如果还有右孩子，则比较左孩子和右孩子
-            if ((child + 1) < size && data[child].compareTo(data[child + 1]) < 0) {
-                child++;
+            if ((upperChild + 1) < size && data[upperChild].compareTo(data[upperChild + 1]) < 0) {
+                upperChild++;
             }
             // child指向左右孩子较大的
-            if (e.compareTo(data[child]) > 0) {
+            if (rootData.compareTo(data[upperChild]) > 0) {
                 break;// 符合大顶堆的规则，直接退出
             } else {
-                data[root] = data[child];
-                root = child;// 继续向下调整
+                data[root] = data[upperChild];
+                root = upperChild;// 继续向下调整
             }
         }
-        data[root] = e;
+        data[root] = rootData;
     }
 
     // 实现从low至high的排序
@@ -248,7 +248,7 @@ public class Sort {
 //		QuickSort.radixSort(arr,10,3);
 //		QuickSort.heapSort(arr);
 //        shellSort(arr);
-        quickSort(arr,0,arr.length-1);
+        quickSort(arr, 0, arr.length - 1);
         System.out.println(Arrays.toString(arr));
     }
 }

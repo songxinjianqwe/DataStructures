@@ -1,6 +1,8 @@
 package com.sinjinsong.datastructure.tree;
 
 
+import java.util.List;
+
 public class Test {
     public static void main(String[] args) {
 //		int [] datas = {8,3,1,6,4,7,10,14,13};
@@ -96,12 +98,15 @@ public class Test {
 
 //        BinarySearchTree<String> a = BinarySearchTree.createStringBiTree("1!2!4!8!#!#!9!#!#!5!10!#!#!11!#!#!3!6!12!#!#!13!#!#!7!14!#!#!15!#!#!");
         BinarySearchTree<Character> a = BinarySearchTree.createCharBiTree("421##3##5##");
+        a.preOrder();
+        List<Character> characters = a.leftSideView();
+        System.out.println(characters);
 //        System.out.println(a.sizeOfLevel(1));
 //        System.out.println(a.sizeOfLevel(0));
 //        System.out.println(a.sizeOfLevel(2));
 //        System.out.println(a.sizeOfLevel(3));
-        System.out.println(a.depth());
-        System.out.println(a.depthNoRec());
+//        System.out.println(a.depth());
+//        System.out.println(a.depthNoRec());
 //        TreeNode<Character> head = a.BST2DoubleLinkedList(a.root());
 //        while(head != null) {
 //            System.out.println(head.val);

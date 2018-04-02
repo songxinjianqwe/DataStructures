@@ -9,13 +9,11 @@ import java.util.Stack;
  */
 public class QuickSort {
 
-    public static void quickSort(int[] arr, int left, int right) {
-        if (left < right) {
-            int low = left, high = right;
+    public static void quickSort(int[] arr, int low, int high) {
+        if (low < high) {
             int pivotIndex = partition(arr, low, high);
-
-            quickSort(arr, left, pivotIndex - 1);
-            quickSort(arr, pivotIndex + 1, right);
+            quickSort(arr, low, pivotIndex - 1);
+            quickSort(arr, pivotIndex + 1, high);
         }
     }
 
@@ -66,8 +64,8 @@ public class QuickSort {
 
     public static void main(String[] args) {
         int[] arr = {65, 2, 3, 1, 5, 7, 23};
-//        quickSort(arr, 0, arr.length - 1);
-        quickSortNoRec(arr,0,arr.length-1);
+        quickSort(arr, 0, arr.length - 1);
+//        quickSortNoRec(arr,0,arr.length-1);
         System.out.println(Arrays.toString(arr));
     }
 }

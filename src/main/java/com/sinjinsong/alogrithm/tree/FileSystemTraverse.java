@@ -13,17 +13,17 @@ public class FileSystemTraverse {
 
     private static void traverse(File root, int level) {
         if (root.isDirectory()) {
-            print(root, level);
+            printFile(root, level);
             File[] files = root.listFiles();
             for (File f : files) {
                 traverse(f, level + 1);
             }
         } else {
-            print(root,level);   
+            printFile(root,level);   
         }
     }
 
-    private static void print(File file, int level) {
+    private static void printFile(File file, int level) {
         for (int i = 0; i < level * 4; i++) {
             System.out.print(" ");
         }

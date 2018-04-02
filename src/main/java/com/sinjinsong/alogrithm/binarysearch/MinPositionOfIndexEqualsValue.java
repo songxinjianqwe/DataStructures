@@ -22,7 +22,7 @@ public class MinPositionOfIndexEqualsValue {
      * @return
      */
     public static int minPosition(int[] arr) {
-        if (arr.length == 9) {
+        if (arr.length == 0) {
             return -1;
         }
         if (arr[0] > arr.length - 1 || arr[arr.length - 1] < 0) {
