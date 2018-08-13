@@ -12,7 +12,7 @@ public class SecondMaxNumber {
             if(arr[i] > max) {
                 sec = max;
                 max = arr[i];
-            }else{
+            }else if(arr[i] > sec){
                 sec = arr[i];
             }
         }
