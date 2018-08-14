@@ -1110,7 +1110,7 @@ public class BinarySearchTree<E extends Comparable<E>> implements Cloneable {
                 curr = curr.right;// 访问右子树
             }
         }
-        return false;
+        return true;
     }
 
     /**
@@ -1391,6 +1391,19 @@ public class BinarySearchTree<E extends Comparable<E>> implements Cloneable {
             }
         }
         return result;
+    }
+
+
+    public TreeNode<E> LCA(TreeNode<E> root, TreeNode<E> p, TreeNode<E> q) {
+        if (root == null || root == p || root == q) {
+            return root;
+        }
+        TreeNode left = LCA(root.left, p, q);
+        TreeNode right = LCA(root.right, p, q);
+        if (left != null && right != null) {
+            return root;
+        }
+        return left != null ? right : left;
     }
 }
 
