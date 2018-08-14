@@ -210,7 +210,7 @@ public class BinarySearchTree<E extends Comparable<E>> implements Cloneable {
 
     /**
      * 第k层节点个数就是第k-1层的孩子数
-     * k==0时，返回1或0
+     * k==0时，返回1
      *
      * @param curr
      * @param k
@@ -218,7 +218,10 @@ public class BinarySearchTree<E extends Comparable<E>> implements Cloneable {
      */
     private int sizeOfLevel(TreeNode<E> curr, int k) {
         if (curr == null) {
-            return 0;
+            throw new NullPointerException();
+        }
+        if (k < 0) {
+            throw new IllegalArgumentException();
         }
         if (k == 0) {
             return 1;
