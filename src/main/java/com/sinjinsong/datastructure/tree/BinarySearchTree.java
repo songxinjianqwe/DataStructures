@@ -230,7 +230,6 @@ public class BinarySearchTree<E extends Comparable<E>> implements Cloneable {
         }
     }
 
-
     public TreeNode<E> parent(TreeNode<E> curr) {
         if (curr == null) {
             return null;
@@ -1259,7 +1258,7 @@ public class BinarySearchTree<E extends Comparable<E>> implements Cloneable {
         if (currA == null || currB == null) {
             return false;
         }
-        if (currA.val != currB.val) {
+        if (!currA.val.equals(currB.val)) {
             return false;
         }
         return isSymmetrical(currA.left, currB.right) && isSymmetrical(currA.right, currB.left);
