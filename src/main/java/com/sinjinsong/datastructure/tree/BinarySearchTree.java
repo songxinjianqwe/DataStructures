@@ -636,9 +636,8 @@ public class BinarySearchTree<E extends Comparable<E>> implements Cloneable {
             pathList.addLast(node.val);
             currentSum += node.val;
             if (node.left == null && node.right == null && currentSum == expectedSum) {
-                result.add(new ArrayList<>(pathList));
-                System.out.println();
                 // 输出链表从根节点到叶子的数据域
+                result.add(new ArrayList<>(pathList));
             } else {
                 findPathSumEqualTo(node.left, pathList, result, currentSum, expectedSum);
                 findPathSumEqualTo(node.right, pathList, result, currentSum, expectedSum);
