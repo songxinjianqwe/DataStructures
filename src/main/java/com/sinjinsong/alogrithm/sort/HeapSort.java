@@ -9,19 +9,23 @@ import java.util.Arrays;
 public class HeapSort {
     
     public static void heapSort(int[] arr) {
-        for (int i = (arr.length - 1) / 2; i >= 0; i--) {
-            filterDown(arr, arr.length, i);
-        }
+        buildMaxHeap(arr);
         
         for (int i = arr.length - 1; i > 0; i--) {
             int temp = arr[0];
             arr[0] = arr[i];
             arr[i] = temp;
-            filterDown(arr,i,0);
+            filterDownForMaxHeap(arr,i,0);
         }
     }
-    
-    private static void filterDown(int[] arr, int size, int root) {
+
+    public static void buildMaxHeap(int[] arr) {
+        for (int i = (arr.length - 1) / 2; i >= 0; i--) {
+            filterDownForMaxHeap(arr, arr.length, i);
+        }
+    }
+
+    public static void filterDownForMaxHeap(int[] arr, int size, int root) {
         int rootData = arr[root];
         int upperChild = 0;
         while (root * 2 + 1 < size) {
@@ -30,6 +34,30 @@ public class HeapSort {
                 upperChild++;
             }
             if (arr[upperChild] < rootData) {
+                break;
+            } else {
+                arr[root] = arr[upperChild];
+                root = upperChild;
+            }
+        }
+        arr[root] = rootData;
+    }
+    
+     public static void buildMinHeap(int[] arr) {
+        for (int i = (arr.length - 1) / 2; i >= 0; i--) {
+            filterDownForMinHeap(arr, arr.length, i);
+        }
+    }
+
+    public static void filterDownForMinHeap(int[] arr, int size, int root) {
+        int rootData = arr[root];
+        int upperChild = 0;
+        while (root * 2 + 1 < size) {
+            upperChild = root * 2 + 1;
+            if (upperChild + 1 < size && arr[upperChild] > arr[upperChild + 1]) {
+                upperChild++;
+            }
+            if (arr[upperChild] > rootData) {
                 break;
             } else {
                 arr[root] = arr[upperChild];

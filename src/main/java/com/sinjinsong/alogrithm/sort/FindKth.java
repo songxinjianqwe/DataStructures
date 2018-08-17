@@ -18,8 +18,8 @@ public class FindKth {
         int low = 0;
         int high = arr.length - 1;
         int index = QuickSort.partition(arr, low, high);
-        while (index != k) {
-            if (index < k) {
+        while (index != arr.length - k - 1) {
+            if (index < arr.length - k - 1) {
                 index = QuickSort.partition(arr, index + 1, high);
             } else {
                 index = QuickSort.partition(arr, low, index - 1);

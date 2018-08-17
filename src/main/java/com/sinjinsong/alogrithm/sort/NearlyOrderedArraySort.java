@@ -7,6 +7,7 @@ import java.util.Arrays;
  * @date 2018/2/19
  */
 public class NearlyOrderedArraySort {
+
     /**
      * 几乎有序的数组排序
      * 几乎有序是指，如果把数组排好顺序的话，每个元素移动的距离可以不超过k，并且k相对于数组来说比较小
@@ -15,49 +16,37 @@ public class NearlyOrderedArraySort {
      * @param arr
      */
     public static void sort(int[] arr, int k) {
-        int[] kArr = new int[k];
-        for (int i = 0; i < arr.length - k + 1; i++) {
-            System.arraycopy(arr, i, kArr, 0, k);
-            buildHeap(kArr);
-            System.arraycopy(kArr, 0, arr, i, k);
-        }
-    }
+        int[] minHeap = new int[k];
+        System.arraycopy(arr, 0, minHeap, 0, k);
+        // 将前k个元素调整为小顶堆
+        HeapSort.buildMinHeap(minHeap);
 
-    /**
-     * 将low~high的元素调整为小顶堆
-     * 调整时将low~high视为0~high-low
-     *
-     * @param arr
-     */
-    private static void buildHeap(int[] arr) {
-        for (int i = (arr.length - 1) / 2; i >= 0; i--) {
-            filterDown(arr, arr.length - 1, i);
+        // 每次将小顶堆的堆顶赋给指针，然后将指针+k位置的元素设置为新的堆堆，并且重新调整为小顶堆
+        for (int i = k; i < arr.length; i++) {
+            arr[i - k] = minHeap[0];
+            minHeap[0] = arr[i];
+            HeapSort.filterDownForMinHeap(minHeap, k, 0);
         }
-    }
 
-    private static void filterDown(int[] arr, int maxIndex, int root) {
-        int e = arr[root];
-        int upperChild;
-        // 当root仍有孩子，则继续循环
-        while ((root * 2 + 1) <= maxIndex) {
-            upperChild = root * 2 + 1;
-            if (upperChild < maxIndex && arr[upperChild] > arr[upperChild + 1]) {
-                upperChild++;
-            }
-            // 此时upperChild指向左右孩子较小的
-            if (e < arr[upperChild]) {
-                break;// 符合小顶堆的规则，直接退出
-            } else {
-                arr[root] = arr[upperChild];
-                root = upperChild;// 继续向下调整
-            }
+        // 最后k个元素进行一次堆排序
+        for (int i = arr.length - k; i < arr.length; i++) {
+            arr[i] = minHeap[0];
+
+            int temp = minHeap[0];
+            minHeap[0] = minHeap[k - 1];
+            minHeap[k - 1] = temp;
+            HeapSort.filterDownForMinHeap(minHeap, --k, 0);
         }
-        arr[root] = e;
     }
 
     public static void main(String[] args) {
         int[] arr = {2, 1, 4, 3, 6, 5, 8, 7, 10, 9};
         sort(arr, 2);
         System.out.println(Arrays.toString(arr));
+        
+        int[] arr2 = {1, 4, 3, 2, 5};
+        sort(arr2, 3);
+        System.out.println(Arrays.toString(arr2));
+        
     }
 }
