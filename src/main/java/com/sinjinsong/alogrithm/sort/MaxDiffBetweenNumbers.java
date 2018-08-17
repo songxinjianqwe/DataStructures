@@ -16,12 +16,12 @@ public class MaxDiffBetweenNumbers {
      * @param arr
      * @return
      */
-    public static int maXDiff(int[] arr) {
+    public static int maxDiff(int[] arr) {
         if (arr == null || arr.length < 2) {
             return 0;
         }
         int min = arr[0];
-        int maxDiff = Integer.MIN_VALUE;
+        int maxDiff = 0;
         int currentDiff;
         for (int i = 1; i < arr.length; i++) {
             currentDiff = arr[i] - min;
@@ -37,6 +37,6 @@ public class MaxDiffBetweenNumbers {
 
     public static void main(String[] args) {
         int[] arr = {9, 11, 8, 5, 7, 12, 16, 14};
-        System.out.println(maXDiff(arr));
+        System.out.println(maxDiff(arr));
     }
 }
