@@ -67,9 +67,9 @@ public class FindLastK {
 
     public static void main(String[] args) {
         ListNode head = ListNode.create(new int[]{1, 2, 3, 4, 5});
-//        System.out.println(findLastK(head, 5));
-//        System.out.println(findLastK(head, 1));
-//        System.out.println(findLastK(head, 3));
+        System.out.println(findLastK(head, 5));
+        System.out.println(findLastK(head, 1));
+        System.out.println(findLastK(head, 3));
 //        ListNode.print(deleteLastK(head,3));
         
     }

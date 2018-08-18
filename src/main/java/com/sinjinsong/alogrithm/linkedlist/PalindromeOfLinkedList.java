@@ -32,7 +32,7 @@ public class PalindromeOfLinkedList {
             slow = slow.next;
         }
         // 如果是奇数个元素(fast.next == null)，那么slow从右半部分开始
-        // 如果是偶数个元素，那么slow从中间开始
+        // 如果是偶数个元素(fast == null)，那么slow从中间开始
         if (fast != null) {
             slow = slow.next;
         }

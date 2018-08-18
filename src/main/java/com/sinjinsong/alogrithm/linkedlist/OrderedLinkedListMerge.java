@@ -20,7 +20,7 @@ public class OrderedLinkedListMerge {
                     resultTail = headA;
                 }
                 headA = headA.next;
-            } else if (headA.val > headB.val) {
+            } else {
                 if (resultHead == null) {
                     resultTail = resultHead = headB;
                 } else {

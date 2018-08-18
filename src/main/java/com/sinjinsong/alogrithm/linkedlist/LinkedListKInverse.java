@@ -47,6 +47,7 @@ public class LinkedListKInverse {
                 }
                 break;
             }
+            // curr 指向头，head指向尾
             if (resultHead == null) {
                 resultHead = curr;
             }
