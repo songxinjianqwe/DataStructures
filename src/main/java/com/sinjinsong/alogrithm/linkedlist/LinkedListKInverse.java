@@ -54,8 +54,7 @@ public class LinkedListKInverse {
                 lastGroupTail.next = curr;
             }
             lastGroupTail = head;
-            head = nextGroupHead;
-            curr = head;
+            curr = head = nextGroupHead;
         }
         return resultHead;
     }
