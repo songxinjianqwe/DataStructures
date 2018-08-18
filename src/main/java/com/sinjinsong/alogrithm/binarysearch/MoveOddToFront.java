@@ -58,7 +58,7 @@ public class MoveOddToFront {
      *
      * @param arr
      */
-    public static void moveOddToFrontWithFixedRelativePosition(int[] arr) {
+    public static void moveOddToFrontWithSameRelativePosition(int[] arr) {
         Queue<Integer> queue = new ArrayDeque<>();
         int evenCount = 0;
         for (int i = 0; i < arr.length; i++) {
@@ -89,7 +89,7 @@ public class MoveOddToFront {
         moveOddToFront(arr);
 //        moveOddToFrontFaster(arr);
         //5, 3, 1, 6, 4, 2, 0
-//        moveOddToFrontWithFixedRelativePosition(arr);
+//        moveOddToFrontWithSameRelativePosition(arr);
         System.out.println(Arrays.toString(arr));
     }
 }
