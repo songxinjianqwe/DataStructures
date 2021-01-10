@@ -2,23 +2,27 @@ package com.sinjinsong.alogrithm.leetcode.medium;
 
 public class LeetCode50 {
     public double myPow(double x, int n) {
-        double curr;
-        if(n > 0) {
-            curr = x;
-        } else {
-            curr = 1 / x;
+        double curr = x;
+        if (n == 0) {
+            return 1;
         }
-        if(n < 0) {
+        boolean negative = false;
+        if (n < 0) {
             n *= -1;
+            negative = true;
         }
         double ans = 1;
-        while(n != 0) {
+        while (n != 0) {
             if ((n & 1) == 1) {
-                x *= curr;
+                ans *= curr;
             }
             n >>= 1;
             curr *= curr;
         }
-        return ans;
+        return negative ? 1 / ans : ans;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(new LeetCode50().myPow(2, 10));
     }
 }
