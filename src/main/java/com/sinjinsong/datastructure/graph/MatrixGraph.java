@@ -885,7 +885,8 @@ public class MatrixGraph<E extends Comparable<E>> {
 	// 第二步：将度数变为1的顶点压入栈中，并从该栈中取出一个顶点重复步骤一。
 	// 如果最后还有未删除顶点，则存在环，否则没有环。
 	// 由于有m条边，n个顶点。如果m>=n，则根据图论知识可直接判断存在环路。
-	public boolean circuitExists() {
+	public boolean
+	circuitExists() {
 		initDegree();
 		Stack<Integer> stack = new Stack<>();
 		// 栈用来保存所有度<=1的顶点索引
