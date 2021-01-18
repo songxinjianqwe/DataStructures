@@ -1,8 +1,24 @@
 package com.sinjinsong.alogrithm.leetcode.easy;
 
-import com.sinjinsong.alogrithm.leetcode.Node;
+
+import java.util.List;
 
 public class LeetCode559 {
+    public static class Node {
+        public int val;
+        public List<Node> children;
+
+        public Node() {}
+
+        public Node(int _val) {
+            val = _val;
+        }
+
+        public Node(int _val, List<Node> _children) {
+            val = _val;
+            children = _children;
+        }
+    }
     /**
      * 给定一个 N 叉树，找到其最大深度。
      *
