@@ -41,7 +41,7 @@ public class LeetCode215 {
         while(low < high) {
             while(low < high && nums[high] >= pivot) {
                 high--;
-            };
+            }
             nums[low] = nums[high];
             while(low < high && nums[low] < pivot) {
                 low++;

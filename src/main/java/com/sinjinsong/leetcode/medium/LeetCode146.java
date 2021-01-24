@@ -1,5 +1,9 @@
 package com.sinjinsong.leetcode.medium;
 
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
+
 public class LeetCode146 {
 //    static class LRUCache {
 //        private Map<Integer, Integer> cache;
@@ -32,8 +36,8 @@ public class LeetCode146 {
             int key;
             int val;
             Node next;
-            Node left;
-            Node right;
+            Node before;
+            Node after;
 
             public Node(int key, int val) {
                 this.key = key;
@@ -42,17 +46,19 @@ public class LeetCode146 {
         }
 
         public void print() {
+            System.out.println("asc");
             Node curr = head;
-            while(curr != null) {
+            while (curr != null) {
                 System.out.println(curr.key + " : " + curr.val);
-                curr = curr.right;
+                curr = curr.after;
             }
-
+            System.out.println("desc");
             curr = tail;
-            while(curr != null) {
+            while (curr != null) {
                 System.out.println(curr.key + " : " + curr.val);
-                curr = curr.left;
+                curr = curr.before;
             }
+            System.out.println();
         }
 
         public LRUCache(int capacity) {
@@ -65,1145 +71,247 @@ public class LeetCode146 {
             if (table[bucket] == null) {
                 return -1;
             }
-            Node curr = table[bucket];
-            while (curr != null) {
-                if (curr.key == key) {
-                    if (curr == tail && head != tail) {
-                        tail = curr.left;
-                    }
-                    if (curr != head) {
-                        if (curr.left != null) {
-                            curr.left.right = curr.right;
-                        }
-                        if (curr.right != null) {
-                            curr.right.left = curr.left;
-                        }
-                        curr.left = null;
-                        curr.right = head;
-                        head.left = curr;
-                        head = curr;
-                    }
-                    return curr.val;
+            Node node = table[bucket];
+            while (node != null) {
+                if (node.key == key) {
+                    afterNodeAccess(node);
+                    return node.val;
                 }
-                curr = curr.next;
+                node = node.next;
             }
             return -1;
         }
 
+        private void afterNodeAccess(Node node) {
+            if (node == tail) {
+                // 不需要调整
+                return;
+            }
+            // 1）node为链表头部 2）node处于链表中部
+            Node before = node.before;
+            Node after = node.after;
+            if (before == null) {
+                after.before = null;
+                head = after;
+            } else {
+                before.after = after;
+                after.before = before;
+            }
+            node.before = tail;
+            node.after = null;
+            tail.after = node;
+            tail = node;
+        }
+
         public void put(int key, int value) {
             int bucket = key % capacity;
-            Node target;
-            if (table[bucket] == null) {
-                target = new Node(key, value);
-                table[bucket] = target;
-                size++;
+            Node node = table[bucket];
+            if (node == null) {
+                table[bucket] = newNode(key, value);
             } else {
-                Node curr = table[bucket];
-                while (curr.next != null) {
-                    if (curr.key == key) {
-                        break;
-                    } else {
-                        curr = curr.next;
-                    }
-                }
-                if (curr.key == key) {
-                    curr.val = value;
-                    if(curr != head) {
-                        if (curr.left != null) {
-                            curr.left.right = curr.right;
-                        }
-                        if (curr.right != null) {
-                            curr.right.left = curr.left;
+                Node prev = node;
+                while (node != null) {
+                    if (node.key == key) {
+                        if (node.val == value) {
+                            return;
+                        } else {
+                            node.val = value;
+                            afterNodeAccess(node);
+                            return;
                         }
                     }
-                    if (curr == tail && head != tail) {
-                        tail = curr.left;
-                    }
-                    target = curr;
-                    // 此时size不动
-                } else {
-                    target = new Node(key, value);
-                    curr.next = target;
-                    size++;
+                    prev = node;
+                    node = node.next;
                 }
+                prev.next = newNode(key, value);
             }
+            size++;
+            afterNodeInsertion();
+        }
+
+        private Node newNode(int key, int value) {
+            Node node = new Node(key, value);
+            // link node last
             if (head == null) {
-                head = tail = target;
-            } else if(target != head) {
-                target.left = null;
-                target.right = head;
-                head.left = target;
-                head = target;
+                head = tail = node;
+            } else {
+                node.before = tail;
+                tail.after = node;
+                tail = node;
             }
-            // 访问完之后再去判断是不是满的，因为有可能存在替换value的情况，这时候就不应该先删掉一个
+            return node;
+        }
+
+        private void afterNodeInsertion() {
             if (size > capacity) {
-                remove(tail);
-                if (tail.left != null) {
-                    tail.left.right = null;
+                // 删除双向链表的头节点
+                Node first = head;
+                head = head.after;
+                remove(first.key);
+            }
+        }
+
+        private void remove(int key) {
+            int bucket = key % capacity;
+            if (table[bucket] == null) {
+                throw new IllegalStateException();
+            }
+            Node node = table[bucket];
+            if (node == null) {
+                return;
+            }
+            Node prev = null;
+            while (node != null) {
+                if (node.key == key) {
+                    if (prev == null) {
+                        table[bucket] = node.next;
+                    } else {
+                        prev.next = node.next;
+                    }
+                    size--;
+                    afterNodeRemoval(node);
+                    return;
                 }
-                tail = tail.left;
+                prev = node;
+                node = node.next;
+            }
+        }
+
+        private void afterNodeRemoval(Node node) {
+            Node before = node.before;
+            Node after = node.after;
+            node.before = node.after = null;
+            if (before == null) {
+                // head
+                after.before = null;
+                head = after;
+            } else {
+                before.after = after;
+            }
+
+            if (after == null) {
+                // tail
+                tail = before;
+            } else {
+                after.before = before;
+            }
+        }
+    }
+
+    private static void conv() {
+        StringBuilder sb = new StringBuilder();
+        int[][] res = {{2},{2,1},{1,1},{2,3},{4,1},{1},{2}};
+        for (int[] re : res) {
+            if (re.length == 1) {
+                sb.append("cache.get(" + re[0] + ");\n");
+            } else {
+                sb.append("cache.put(" + re[0] + ", " + re[1] + ");\n");
+            }
+        }
+        System.out.println(sb.toString());
+    }
+
+    static class LRUCacheBasedOnHashMap {
+        static class Node {
+            int key;
+            int value;
+            Node before;
+            Node after;
+
+            public Node(int key, int value) {
+                this.key = key;
+                this.value = value;
+            }
+        }
+
+        private final Map<Integer, Node> map;
+        private Node head;
+        private Node tail;
+        private final int capacity;
+        private int size;
+
+        public LRUCacheBasedOnHashMap(int capacity) {
+            this.capacity = capacity;
+            map = new HashMap<>(capacity);
+        }
+
+        public int get(int key) {
+            Node node = map.get(key);
+            if (node == null) {
+                return -1;
+            }
+            afterNodeAccess(node);
+            return node.value;
+        }
+
+        public void put(int key, int value) {
+            if (map.containsKey(key)) {
+                Node node = map.get(key);
+                if (value == node.value) {
+                    return;
+                }
+                node.value = value;
+                afterNodeAccess(node);
+            } else {
+                map.put(key, newNode(key, value));
+                size++;
+                afterNodeInsertion();
+            }
+        }
+
+        private void afterNodeAccess(Node node) {
+            if (node == tail) {
+                // tail
+                return;
+            }
+            Node before = node.before;
+            Node after = node.after;
+            if (before == null) {
+                // head
+                after.before = null;
+                head = after;
+            } else {
+                // middle
+                before.after = after;
+                after.before = before;
+            }
+            node.before = tail;
+            node.after = null;
+            tail.after = node;
+            tail = node;
+        }
+
+        private void afterNodeInsertion() {
+            if (size > capacity) {
+                map.remove(head.key);
+                head.after.before = null;
+                head = head.after;
                 size--;
             }
         }
 
-        private void remove(Node node) {
-            int bucket = node.key % capacity;
-            if (table[bucket] == null) {
-                throw new IllegalStateException();
-            }
-            Node curr = table[bucket];
-            if (curr.key == node.key) {
-                table[bucket] = curr.next;
+        private Node newNode(int key, int value) {
+            Node node = new Node(key, value);
+            if (head == null) {
+                head = tail = node;
             } else {
-                Node pre = curr;
-                curr = curr.next;
-                while (curr != null) {
-                    if (curr.key == node.key) {
-                        pre.next = pre.next.next;
-                        break;
-                    } else {
-                        pre = curr;
-                        curr = curr.next;
-                    }
-                }
+                node.before = tail;
+                node.after = null;
+                tail.after = node;
+                tail = node;
             }
+            return node;
         }
-//        StringBuilder sb = new StringBuilder();
-//        int[][] res = xx;
-//        for (int[] re : res) {
-//            if (re.length == 1) {
-//                sb.append("cache.get(" + re[0] + ");\n");
-//            } else {
-//                sb.append("cache.put(" + re[0] + ", " + re[1] + ");\n");
-//            }
-//        }
-//        System.out.println(sb.toString());
     }
 
     public static void main(String[] args) {
-
-        LRUCache cache = new LRUCache(105);
-        cache.put(33, 219);
-        cache.get(39);
-        cache.put(96, 56);
-        cache.get(129);
-        cache.get(115);
-        cache.get(112);
-        cache.put(3, 280);
-        cache.get(40);
-        cache.put(85, 193);
-        cache.put(10, 10);
-        cache.put(100, 136);
-        cache.put(12, 66);
-        cache.put(81, 261);
-        cache.put(33, 58);
-        cache.get(3);
-        cache.put(121, 308);
-        cache.put(129, 263);
-        cache.get(105);
-        cache.put(104, 38);
-        cache.put(65, 85);
-        cache.put(3, 141);
-        cache.put(29, 30);
-        cache.put(80, 191);
-        cache.put(52, 191);
-        cache.put(8, 300);
-        cache.get(136);
-        cache.put(48, 261);
-        cache.put(3, 193);
-        cache.put(133, 193);
-        cache.put(60, 183);
-        cache.put(128, 148);
-        cache.put(52, 176);
-        cache.get(48);
-        cache.put(48, 119);
-        cache.put(10, 241);
-        cache.get(124);
-        cache.put(130, 127);
-        cache.get(61);
-        cache.put(124, 27);
-        cache.get(94);
-        cache.put(29, 304);
-        cache.put(102, 314);
-        cache.get(110);
-        cache.put(23, 49);
-        cache.put(134, 12);
-        cache.put(55, 90);
-        cache.get(14);
-        cache.get(104);
-        cache.put(77, 165);
-        cache.put(60, 160);
-        cache.get(117);
-        cache.put(58, 30);
-        cache.get(54);
-        cache.get(136);
-        cache.get(128);
-        cache.get(131);
-        cache.put(48, 114);
-        cache.get(136);
-        cache.put(46, 51);
-        cache.put(129, 291);
-        cache.put(96, 207);
-        cache.get(131);
-        cache.put(89, 153);
-        cache.put(120, 154);
-        cache.get(111);
-        cache.get(47);
-        cache.get(5);
-        cache.put(114, 157);
-        cache.put(57, 82);
-        cache.put(113, 106);
-        cache.put(74, 208);
-        cache.get(56);
-        cache.get(59);
-        cache.get(100);
-        cache.get(132);
-        cache.put(127, 202);
-        cache.get(75);
-        cache.put(102, 147);
-        cache.get(37);
-        cache.put(53, 79);
-        cache.put(119, 220);
-        cache.get(47);
-        cache.get(101);
-        cache.get(89);
-        cache.get(20);
-        cache.get(93);
-        cache.get(7);
-        cache.put(48, 109);
-        cache.put(71, 146);
-        cache.get(43);
-        cache.get(122);
-        cache.put(3, 160);
-        cache.get(17);
-        cache.put(80, 22);
-        cache.put(80, 272);
-        cache.get(75);
-        cache.get(117);
-        cache.put(76, 204);
-        cache.put(74, 141);
-        cache.put(107, 93);
-        cache.put(34, 280);
-        cache.put(31, 94);
-        cache.get(132);
-        cache.put(71, 258);
-        cache.get(61);
-        cache.get(60);
-        cache.put(69, 272);
-        cache.get(46);
-        cache.put(42, 264);
-        cache.put(87, 126);
-        cache.put(107, 236);
-        cache.put(131, 218);
-        cache.get(79);
-        cache.put(41, 71);
-        cache.put(94, 111);
-        cache.put(19, 124);
-        cache.put(52, 70);
-        cache.get(131);
-        cache.get(103);
-        cache.get(81);
-        cache.get(126);
-        cache.put(61, 279);
-        cache.put(37, 100);
-        cache.get(95);
-        cache.get(54);
-        cache.put(59, 136);
-        cache.put(101, 219);
-        cache.put(15, 248);
-        cache.put(37, 91);
-        cache.put(11, 174);
-        cache.put(99, 65);
-        cache.put(105, 249);
-        cache.get(85);
-        cache.put(108, 287);
-        cache.put(96, 4);
-        cache.get(70);
-        cache.get(24);
-        cache.put(52, 206);
-        cache.put(59, 306);
-        cache.put(18, 296);
-        cache.put(79, 95);
-        cache.put(50, 131);
-        cache.put(3, 161);
-        cache.put(2, 229);
-        cache.put(39, 183);
-        cache.put(90, 225);
-        cache.put(75, 23);
-        cache.put(136, 280);
-        cache.get(119);
-        cache.put(81, 272);
-        cache.get(106);
-        cache.get(106);
-        cache.get(70);
-        cache.put(73, 60);
-        cache.put(19, 250);
-        cache.put(82, 291);
-        cache.put(117, 53);
-        cache.put(16, 176);
-        cache.get(40);
-        cache.put(7, 70);
-        cache.put(135, 212);
-        cache.get(59);
-        cache.put(81, 201);
-        cache.put(75, 305);
-        cache.get(101);
-        cache.put(8, 250);
-        cache.get(38);
-        cache.put(28, 220);
-        cache.get(21);
-        cache.put(105, 266);
-        cache.get(105);
-        cache.get(85);
-        cache.get(55);
-        cache.get(6);
-        cache.put(78, 83);
-        cache.get(126);
-        cache.get(102);
-        cache.get(66);
-        cache.put(61, 42);
-        cache.put(127, 35);
-        cache.put(117, 105);
-        cache.get(128);
-        cache.get(102);
-        cache.get(50);
-        cache.put(24, 133);
-        cache.put(40, 178);
-        cache.put(78, 157);
-        cache.put(71, 22);
-        cache.get(25);
-        cache.get(82);
-        cache.get(129);
-        cache.put(126, 12);
-        cache.get(45);
-        cache.get(40);
-        cache.get(86);
-        cache.get(100);
-        cache.put(30, 110);
-        cache.get(49);
-        cache.put(47, 185);
-        cache.put(123, 101);
-        cache.get(102);
-        cache.get(5);
-        cache.put(40, 267);
-        cache.put(48, 155);
-        cache.get(108);
-        cache.get(45);
-        cache.put(14, 182);
-        cache.put(20, 117);
-        cache.put(43, 124);
-        cache.get(38);
-        cache.put(77, 158);
-        cache.get(111);
-        cache.get(39);
-        cache.put(69, 126);
-        cache.put(113, 199);
-        cache.put(21, 216);
-        cache.get(11);
-        cache.put(117, 207);
-        cache.get(30);
-        cache.put(97, 84);
-        cache.get(109);
-        cache.put(99, 218);
-        cache.get(109);
-        cache.put(113, 1);
-        cache.get(62);
-        cache.put(49, 89);
-        cache.put(53, 311);
-        cache.get(126);
-        cache.put(32, 153);
-        cache.put(14, 296);
-        cache.get(22);
-        cache.put(14, 225);
-        cache.get(49);
-        cache.get(75);
-        cache.put(61, 241);
-        cache.get(7);
-        cache.get(6);
-        cache.get(31);
-        cache.put(75, 15);
-        cache.get(115);
-        cache.put(84, 181);
-        cache.put(125, 111);
-        cache.put(105, 94);
-        cache.put(48, 294);
-        cache.get(106);
-        cache.get(61);
-        cache.put(53, 190);
-        cache.get(16);
-        cache.put(12, 252);
-        cache.get(28);
-        cache.put(111, 122);
-        cache.get(122);
-        cache.put(10, 21);
-        cache.get(59);
-        cache.get(72);
-        cache.get(39);
-        cache.get(6);
-        cache.get(126);
-        cache.put(131, 177);
-        cache.put(105, 253);
-        cache.get(26);
-        cache.put(43, 311);
-        cache.get(79);
-        cache.put(91, 32);
-        cache.put(7, 141);
-        cache.get(38);
-        cache.get(13);
-        cache.put(79, 135);
-        cache.get(43);
-        cache.get(94);
-        cache.put(80, 182);
-        cache.get(53);
-        cache.put(120, 309);
-        cache.put(3, 109);
-        cache.get(97);
-        cache.put(9, 128);
-        cache.put(114, 121);
-        cache.get(56);
-        cache.get(56);
-        cache.put(124, 86);
-        cache.put(34, 145);
-        cache.get(131);
-        cache.get(78);
-        cache.put(86, 21);
-        cache.get(98);
-        cache.put(115, 164);
-        cache.put(47, 225);
-        cache.get(95);
-        cache.put(89, 55);
-        cache.put(26, 134);
-        cache.put(8, 15);
-        cache.get(11);
-        cache.put(84, 276);
-        cache.put(81, 67);
-        cache.get(46);
-        cache.get(39);
-        cache.get(92);
-        cache.get(96);
-        cache.put(89, 51);
-        cache.put(136, 240);
-        cache.get(45);
-        cache.get(27);
-        cache.put(24, 209);
-        cache.put(82, 145);
-        cache.get(10);
-        cache.put(104, 225);
-        cache.put(120, 203);
-        cache.put(121, 108);
-        cache.put(11, 47);
-        cache.get(89);
-        cache.put(80, 66);
-        cache.get(16);
-        cache.put(95, 101);
-        cache.get(49);
+        conv();
+        LRUCacheBasedOnHashMap cache = new LRUCacheBasedOnHashMap(2);
+        cache.put(2, 1);
+        cache.put(1, 1);
+        cache.put(2, 3);
+        cache.put(4, 1);
         cache.get(1);
-        cache.put(77, 184);
-        cache.get(27);
-        cache.put(74, 313);
-        cache.put(14, 118);
-        cache.get(16);
-        cache.get(74);
-        cache.put(88, 251);
-        cache.get(124);
-        cache.put(58, 101);
-        cache.put(42, 81);
         cache.get(2);
-        cache.put(133, 101);
-        cache.get(16);
-        cache.put(1, 254);
-        cache.put(25, 167);
-        cache.put(53, 56);
-        cache.put(73, 198);
-        cache.get(48);
-        cache.get(30);
-        cache.get(95);
-        cache.put(90, 102);
-        cache.put(92, 56);
-        cache.put(2, 130);
-        cache.put(52, 11);
-        cache.get(9);
-        cache.get(23);
-        cache.put(53, 275);
-        cache.put(23, 258);
-        cache.get(57);
-        cache.put(136, 183);
-        cache.put(75, 265);
-        cache.get(85);
-        cache.put(68, 274);
-        cache.put(15, 255);
-        cache.get(85);
-        cache.put(33, 314);
-        cache.put(101, 223);
-        cache.put(39, 248);
-        cache.put(18, 261);
-        cache.put(37, 160);
-        cache.get(112);
-        cache.get(65);
-        cache.put(31, 240);
-        cache.put(40, 295);
-        cache.put(99, 231);
-        cache.get(123);
-        cache.put(34, 43);
-        cache.get(87);
-        cache.get(80);
-        cache.put(47, 279);
-        cache.put(89, 299);
-        cache.get(72);
-        cache.put(26, 277);
-        cache.put(92, 13);
-        cache.put(46, 92);
-        cache.put(67, 163);
-        cache.put(85, 184);
-        cache.get(38);
-        cache.put(35, 65);
-        cache.get(70);
-        cache.get(81);
-        cache.put(40, 65);
-        cache.get(80);
-        cache.put(80, 23);
-        cache.put(76, 258);
-        cache.get(69);
-        cache.get(133);
-        cache.put(123, 196);
-        cache.put(119, 212);
-        cache.put(13, 150);
-        cache.put(22, 52);
-        cache.put(20, 105);
-        cache.put(61, 233);
-        cache.get(97);
-        cache.put(128, 307);
-        cache.get(85);
-        cache.get(80);
-        cache.get(73);
-        cache.get(30);
-        cache.put(46, 44);
-        cache.get(95);
-        cache.put(121, 211);
-        cache.put(48, 307);
-        cache.get(2);
-        cache.put(27, 166);
-        cache.get(50);
-        cache.put(75, 41);
-        cache.put(101, 105);
-        cache.get(2);
-        cache.put(110, 121);
-        cache.put(32, 88);
-        cache.put(75, 84);
-        cache.put(30, 165);
-        cache.put(41, 142);
-        cache.put(128, 102);
-        cache.put(105, 90);
-        cache.put(86, 68);
-        cache.put(13, 292);
-        cache.put(83, 63);
-        cache.put(5, 239);
-        cache.get(5);
-        cache.put(68, 204);
-        cache.get(127);
-        cache.put(42, 137);
-        cache.get(93);
-        cache.put(90, 258);
-        cache.put(40, 275);
-        cache.put(7, 96);
-        cache.get(108);
-        cache.put(104, 91);
-        cache.get(63);
-        cache.get(31);
-        cache.put(31, 89);
-        cache.get(74);
-        cache.get(81);
-        cache.put(126, 148);
-        cache.get(107);
-        cache.put(13, 28);
-        cache.put(21, 139);
-        cache.get(114);
-        cache.get(5);
-        cache.get(89);
-        cache.get(133);
-        cache.get(20);
-        cache.put(96, 135);
-        cache.put(86, 100);
-        cache.put(83, 75);
-        cache.get(14);
-        cache.put(26, 195);
-        cache.get(37);
-        cache.put(1, 287);
-        cache.get(79);
-        cache.get(15);
-        cache.get(6);
-        cache.put(68, 11);
-        cache.get(52);
-        cache.put(124, 80);
-        cache.put(123, 277);
-        cache.put(99, 281);
-        cache.get(133);
-        cache.get(90);
-        cache.get(45);
-        cache.get(127);
-        cache.put(9, 68);
-        cache.put(123, 6);
-        cache.put(124, 251);
-        cache.put(130, 191);
-        cache.put(23, 174);
-        cache.put(69, 295);
-        cache.get(32);
-        cache.get(37);
-        cache.put(1, 64);
-        cache.put(48, 116);
-        cache.get(68);
-        cache.put(117, 173);
-        cache.put(16, 89);
-        cache.get(84);
-        cache.put(28, 234);
-        cache.get(129);
-        cache.get(89);
-        cache.get(55);
-        cache.get(83);
-        cache.put(99, 264);
-        cache.get(129);
-        cache.get(84);
-        cache.get(14);
-        cache.put(26, 274);
-        cache.get(109);
-        cache.get(110);
-        cache.put(96, 120);
-        cache.put(128, 207);
-        cache.get(12);
-        cache.put(99, 233);
-        cache.put(20, 305);
-        cache.put(26, 24);
-        cache.put(102, 32);
-        cache.get(82);
-        cache.put(16, 30);
-        cache.put(5, 244);
-        cache.get(130);
-        cache.put(109, 36);
-        cache.put(134, 162);
-        cache.put(13, 165);
-        cache.put(45, 235);
-        cache.put(112, 80);
-        cache.get(6);
-        cache.put(34, 98);
-        cache.put(64, 250);
-        cache.put(18, 237);
-        cache.put(72, 21);
-        cache.put(42, 105);
-        cache.put(57, 108);
-        cache.put(28, 229);
-        cache.get(83);
-        cache.put(1, 34);
-        cache.put(93, 151);
-        cache.put(132, 94);
-        cache.put(18, 24);
-        cache.put(57, 68);
-        cache.put(42, 137);
-        cache.get(35);
-        cache.get(80);
-        cache.put(10, 288);
-        cache.get(21);
-        cache.get(115);
-        cache.get(131);
-        cache.get(30);
-        cache.get(43);
-        cache.put(97, 262);
-        cache.put(55, 146);
-        cache.put(81, 112);
-        cache.put(2, 212);
-        cache.put(5, 312);
-        cache.put(82, 107);
-        cache.put(14, 151);
-        cache.get(77);
-        cache.put(60, 42);
-        cache.put(90, 309);
-        cache.get(90);
-        cache.put(131, 220);
-        cache.get(86);
-        cache.put(106, 85);
-        cache.put(85, 254);
-        cache.get(14);
-        cache.put(66, 262);
-        cache.put(88, 243);
-        cache.get(3);
-        cache.put(50, 301);
-        cache.put(118, 91);
-        cache.get(25);
-        cache.get(105);
-        cache.get(100);
-        cache.get(89);
-        cache.put(111, 152);
-        cache.put(65, 24);
-        cache.put(41, 264);
-        cache.get(117);
-        cache.get(117);
-        cache.put(80, 45);
-        cache.get(38);
-        cache.put(11, 151);
-        cache.put(126, 203);
-        cache.put(128, 59);
-        cache.put(6, 129);
-        cache.get(91);
-        cache.put(118, 2);
-        cache.put(50, 164);
-        cache.get(74);
-        cache.get(80);
-        cache.put(48, 308);
-        cache.put(109, 82);
-        cache.put(3, 48);
-        cache.put(123, 10);
-        cache.put(59, 249);
-        cache.put(128, 64);
-        cache.put(41, 287);
-        cache.put(52, 278);
-        cache.put(98, 151);
-        cache.get(12);
-        cache.get(25);
-        cache.put(18, 254);
-        cache.put(24, 40);
-        cache.get(119);
-        cache.put(66, 44);
-        cache.put(61, 19);
-        cache.put(80, 132);
-        cache.put(62, 111);
-        cache.get(80);
-        cache.put(57, 188);
-        cache.get(132);
-        cache.get(42);
-        cache.put(18, 314);
-        cache.get(48);
-        cache.put(86, 138);
-        cache.get(8);
-        cache.put(27, 88);
-        cache.put(96, 178);
-        cache.put(17, 104);
-        cache.put(112, 86);
-        cache.get(25);
-        cache.put(129, 119);
-        cache.put(93, 44);
-        cache.get(115);
-        cache.put(33, 36);
-        cache.put(85, 190);
-        cache.get(10);
-        cache.put(52, 182);
-        cache.put(76, 182);
-        cache.get(109);
-        cache.get(118);
-        cache.put(82, 301);
-        cache.put(26, 158);
-        cache.get(71);
-        cache.put(108, 309);
-        cache.put(58, 132);
-        cache.put(13, 299);
-        cache.put(117, 183);
-        cache.get(115);
-        cache.get(89);
-        cache.get(42);
-        cache.put(11, 285);
-        cache.put(30, 144);
-        cache.get(69);
-        cache.put(31, 53);
-        cache.get(21);
-        cache.put(96, 162);
-        cache.put(4, 227);
-        cache.put(77, 120);
-        cache.put(128, 136);
-        cache.get(92);
-        cache.put(119, 208);
-        cache.put(87, 61);
-        cache.put(9, 40);
-        cache.put(48, 273);
-        cache.get(95);
-        cache.get(35);
-        cache.put(62, 267);
-        cache.put(88, 161);
-        cache.get(59);
-        cache.get(85);
-        cache.put(131, 53);
-        cache.put(114, 98);
-        cache.put(90, 257);
-        cache.put(108, 46);
-        cache.get(54);
-        cache.put(128, 223);
-        cache.put(114, 168);
-        cache.put(89, 203);
-        cache.get(100);
-        cache.get(116);
-        cache.get(14);
-        cache.put(61, 104);
-        cache.put(44, 161);
-        cache.put(60, 132);
-        cache.put(21, 310);
-        cache.get(89);
-        cache.put(109, 237);
-        cache.get(105);
-        cache.get(32);
-        cache.put(78, 101);
-        cache.put(14, 71);
-        cache.put(100, 47);
-        cache.put(102, 33);
-        cache.put(44, 29);
-        cache.get(85);
-        cache.get(37);
-        cache.put(68, 175);
-        cache.put(116, 182);
-        cache.put(42, 47);
-        cache.get(9);
-        cache.put(64, 37);
-        cache.put(23, 32);
-        cache.put(11, 124);
-        cache.put(130, 189);
-        cache.get(65);
-        cache.put(33, 219);
-        cache.put(79, 253);
-        cache.get(80);
-        cache.get(16);
-        cache.put(38, 18);
-        cache.put(35, 67);
-        cache.get(107);
-        cache.get(88);
-        cache.put(37, 13);
-        cache.put(71, 188);
-        cache.get(35);
-        cache.put(58, 268);
-        cache.put(18, 260);
-        cache.put(73, 23);
-        cache.put(28, 102);
-        cache.get(129);
-        cache.get(88);
-        cache.get(65);
-        cache.get(80);
-        cache.put(119, 146);
-        cache.get(113);
-        cache.get(62);
-        cache.put(123, 138);
-        cache.put(18, 1);
-        cache.put(26, 208);
-        cache.get(107);
-        cache.get(107);
-        cache.put(76, 132);
-        cache.put(121, 191);
-        cache.get(4);
-        cache.get(8);
-        cache.get(117);
-        cache.put(11, 118);
-        cache.get(43);
-        cache.get(69);
-        cache.get(136);
-        cache.put(66, 298);
-        cache.get(25);
-        cache.get(71);
-        cache.get(100);
-        cache.put(26, 141);
-        cache.put(53, 256);
-        cache.put(111, 205);
-        cache.put(126, 106);
-        cache.get(43);
-        cache.put(14, 39);
-        cache.put(44, 41);
-        cache.put(23, 230);
-        cache.get(131);
-        cache.get(53);
-        cache.put(104, 268);
-        cache.get(30);
-        cache.put(108, 48);
-        cache.put(72, 45);
-        cache.get(58);
-        cache.get(46);
-        cache.put(128, 301);
-        cache.get(71);
-        cache.get(99);
-        cache.get(113);
-        cache.get(121);
-        cache.put(130, 122);
-        cache.put(102, 5);
-        cache.put(111, 51);
-        cache.put(85, 229);
-        cache.put(86, 157);
-        cache.put(82, 283);
-        cache.put(88, 52);
-        cache.put(136, 105);
-        cache.get(40);
-        cache.get(63);
-        cache.put(114, 244);
-        cache.put(29, 82);
-        cache.put(83, 278);
-        cache.get(131);
-        cache.put(56, 33);
-        cache.get(123);
-        cache.get(11);
-        cache.get(119);
-        cache.put(119, 1);
-        cache.put(48, 52);
-        cache.get(47);
-        cache.put(127, 136);
-        cache.put(78, 38);
-        cache.put(117, 64);
-        cache.put(130, 134);
-        cache.put(93, 69);
-        cache.put(70, 98);
-        cache.get(68);
-        cache.put(4, 3);
-        cache.put(92, 173);
-        cache.put(114, 65);
-        cache.put(7, 309);
-        cache.get(31);
-        cache.put(107, 271);
-        cache.put(110, 69);
-        cache.get(45);
-        cache.put(35, 288);
-        cache.get(20);
-        cache.put(38, 79);
-        cache.get(46);
-        cache.put(6, 123);
-        cache.get(19);
-        cache.put(84, 95);
-        cache.get(76);
-        cache.put(71, 31);
-        cache.put(72, 171);
-        cache.put(35, 123);
-        cache.get(32);
-        cache.put(73, 85);
-        cache.get(94);
-        cache.get(128);
-        cache.get(28);
-        cache.get(38);
-        cache.get(109);
-        cache.put(85, 197);
-        cache.put(10, 41);
-        cache.put(71, 50);
-        cache.get(128);
-        cache.put(3, 55);
-        cache.put(15, 9);
-        cache.put(127, 215);
-        cache.get(17);
-        cache.get(37);
-        cache.put(111, 272);
-        cache.put(79, 169);
-        cache.put(86, 206);
-        cache.put(40, 264);
-        cache.get(134);
-        cache.put(16, 207);
-        cache.put(27, 127);
-        cache.put(29, 48);
-        cache.put(32, 122);
-        cache.put(15, 35);
-        cache.put(117, 36);
-        cache.get(127);
-        cache.get(36);
-        cache.put(72, 70);
-        cache.put(49, 201);
-        cache.put(89, 215);
-        cache.put(134, 290);
-        cache.put(77, 64);
-        cache.put(26, 101);
-        cache.get(99);
-        cache.put(36, 96);
-        cache.put(84, 129);
-        cache.put(125, 264);
-        cache.get(43);
-        cache.get(38);
-        cache.put(24, 76);
-        cache.put(45, 2);
-        cache.put(32, 24);
-        cache.put(84, 235);
-        cache.put(16, 240);
-        cache.put(17, 289);
-        cache.put(49, 94);
-        cache.put(90, 54);
-        cache.put(88, 199);
-        cache.get(23);
-        cache.put(87, 19);
-        cache.put(11, 19);
-        cache.get(24);
-        cache.get(57);
-        cache.get(4);
-        cache.get(40);
-        cache.put(133, 286);
-        cache.put(127, 231);
-        cache.get(51);
-        cache.put(52, 196);
-        cache.get(27);
-        cache.get(10);
-        cache.get(93);
-        cache.put(115, 143);
-        cache.put(62, 64);
-        cache.put(59, 200);
-        cache.put(75, 85);
-
-        cache.put(7, 93);
-        cache.put(117, 270);
-        cache.put(116, 6);
-        cache.get(32);
-        cache.get(135);
-        cache.put(2, 140);
-        cache.put(23, 1);
-        cache.put(11, 69);
-        cache.put(89, 30);
-        cache.put(27, 14);
-        cache.get(100);
-        cache.get(61);
-        cache.put(99, 41);
-        cache.put(88, 12);
-        cache.get(41);
-        cache.put(52, 203);
-        cache.get(65);
-        cache.put(62, 78);
-        cache.put(104, 276);
-        cache.put(105, 307);
-        cache.get(7);
-        cache.put(23, 123);
-        cache.get(22);
-        cache.put(35, 299);
-        cache.get(69);
-        cache.get(11);
-        cache.put(14, 112);
-        cache.get(115);
-        cache.get(112);
-        cache.get(108);
-        cache.put(110, 165);
-        cache.put(83, 165);
-        cache.put(36, 260);
-        cache.put(54, 73);
-        cache.get(36);
-        cache.put(93, 69);
-        cache.get(134);
-        cache.put(125, 96);
-        cache.put(74, 127);
-        cache.put(110, 305);
-        cache.put(92, 309);
-        cache.put(87, 45);
-        cache.put(31, 266);
-        cache.get(10);
-        cache.put(114, 206);
-        cache.put(49, 141);
-        cache.get(82);
-        cache.put(92, 3);
-        cache.put(91, 160);
-        cache.get(41);
-        cache.put(60, 147);
-        cache.put(36, 239);
-        cache.put(23, 296);
-        cache.put(134, 120);
-        cache.get(6);
-        cache.put(5, 283);
-        cache.put(117, 68);
-        cache.get(35);
-        cache.get(120);
-        cache.put(44, 191);
-        cache.put(121, 14);
-        cache.put(118, 113);
-        cache.put(84, 106);
-        cache.get(23);
-        cache.put(15, 240);
-        cache.get(37);
-        cache.put(52, 256);
-        cache.put(119, 116);
-        cache.put(101, 7);
-        cache.put(14, 157);
-        cache.put(29, 225);
-        cache.put(4, 247);
-        cache.put(8, 112);
-        cache.put(8, 189);
-        cache.put(96, 220);
-        cache.get(104);
-        cache.put(72, 106);
-        cache.put(23, 170);
-        cache.put(67, 209);
-        cache.put(70, 39);
-        cache.get(18);
-        cache.get(6);
-        cache.get(34);
-        cache.put(121, 157);
-        cache.get(16);
-        cache.get(19);
-        cache.put(83, 283);
-        cache.put(13, 22);
-        cache.put(33, 143);
-        cache.put(88, 133);
-        cache.get(88);
-        cache.put(5, 49);
-        cache.get(38);
-        cache.get(110);
-        cache.get(67);
-        cache.put(23, 227);
-        cache.get(68);
-        cache.get(3);
-        cache.put(27, 265);
-        cache.get(31);
-        cache.put(13, 103);
-        cache.get(116);
-        cache.put(111, 282);
-        cache.put(43, 71);
-        cache.get(134);
-        cache.put(70, 141);
-        cache.get(14);
-        cache.get(119);
-        cache.get(43);
-        cache.get(122);
-        cache.put(38, 187);
-        cache.put(8, 9);
-        cache.get(63);
-        cache.put(42, 140);
-        cache.get(83);
-        cache.get(92);
-        cache.get(106);
-        cache.get(28);
-        cache.put(57, 139);
-        cache.put(36, 257);
-        cache.put(30, 204);
-        cache.get(72);
-        cache.put(105, 243);
-        cache.get(16);
-        cache.put(74, 25);
-        cache.get(22);
-        cache.put(118, 144);
-        cache.get(133);
-        cache.get(71);
-        cache.put(99, 21);
-        cache.get(26);
-        cache.get(35);
-        cache.put(89, 209);
-        cache.put(106, 158);
-        cache.put(76, 63);
-        cache.put(112, 216);
-        cache.get(128);
-        cache.get(54);
-        cache.put(16, 165);
-        cache.put(76, 206);
-        cache.put(69, 253);
-        cache.get(23);
-        cache.put(54, 111);
-        cache.get(80);
-        cache.put(111, 72);
-        cache.put(95, 217);
-        cache.get(118);
-        cache.put(4, 146);
-        cache.get(47);
-        cache.put(108, 290);
-        cache.get(43);
-        cache.put(70, 8);
-        cache.get(117);
-        cache.get(121);
-        cache.put(42, 220);
-        cache.get(48);
-        cache.get(32);
-        cache.put(68, 213);
-        cache.put(30, 157);
-        cache.put(62, 68);
-        cache.get(58);
-        cache.put(125, 283);
-        cache.put(132, 45);
-        cache.get(85);
-        cache.get(92);
-        cache.put(23, 257);
-        cache.get(74);
-        cache.put(18, 256);
-        cache.get(90);
-        cache.put(10, 158);
-        cache.put(57, 34);
-        cache.get(27);
-        cache.get(107);
-
-
     }
 }
